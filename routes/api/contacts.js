@@ -1,80 +1,27 @@
 const express = require('express')
 const router = express.Router()
+const { asyncWrapper } = require('../../helpers/asyncWrapper')
 
-const { listContacts, getContactById, removeContact, addContact, updateContact } = require('../../model/index')
+const {
+  getAllContacts,
+  getContactByIdentification,
+  addNewContact,
+  changeContact,
+  deleteContact,
+  addContactToFavorite
+} = require('../../controllers/contactsControllers')
 
 const {
   addContactValidation,
-  patchContactValidation
+  patchContactValidation,
+  patchFavoriteValidation
 } = require('../../middleware/validationMiddleware')
 
-router.get('/', async (req, res, next) => {
-  try {
-    const contactsList = await listContacts()
-    return res.json({
-      status: 'success',
-      code: 200,
-      contactsList
-    })
-  } catch (err) {
-    next(err)
-  }
-})
-
-router.get('/:contactId', async (req, res, next) => {
-  try {
-    const contact = await getContactById(req.params.contactId)
-    if (!contact) {
-      return res.status(404).json({
-        status: 'error',
-        code: 404,
-        message: 'Not found'
-      })
-    }
-    res.json({
-      status: 'success',
-      code: 200,
-      contact
-    })
-  } catch (error) {
-    next(error)
-  }
-})
-
-router.post('/', addContactValidation, async (req, res, next) => {
-  try {
-    const contact = await addContact(req.body)
-
-    res.status(201).json({ contact, status: 'success' })
-  } catch (error) {
-    next(error)
-  }
-})
-
-router.delete('/:contactId', async (req, res, next) => {
-  try {
-    const contact = await removeContact(req.params.contactId)
-
-    if (!contact) {
-      return res.status(404).json({ message: 'Not found' })
-    }
-    res.status(200).json({ message: `Contact with id '${req.params.contactId}' deleted` })
-  } catch (error) {
-    next(error)
-  }
-})
-
-router.patch('/:contactId', patchContactValidation, async (req, res, next) => {
-  try {
-    const contact = await updateContact(req.params.contactId, req.body)
-
-    if (!contact) {
-      return res.status(404).json({ message: 'Not found' })
-    }
-    res.status(200).json({ contact, status: 'success' })
-  } catch (error) {
-    next(error)
-  }
-})
+router.get('/', asyncWrapper(getAllContacts))
+router.get('/:contactId', asyncWrapper(getContactByIdentification))
+router.post('/', addContactValidation, asyncWrapper(addNewContact))
+router.patch('/:contactId', patchContactValidation, asyncWrapper(changeContact))
+router.patch('/:contactId/favorite', patchFavoriteValidation, asyncWrapper(addContactToFavorite))
+router.delete('/:contactId', asyncWrapper(deleteContact))
 
 module.exports = router

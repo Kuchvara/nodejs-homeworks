@@ -28,6 +28,10 @@ const schemaPatchContact = Joi.object({
     .optional()
 }).min(1)
 
+const schemaFavoriteContact = Joi.object({
+  favorite: Joi.boolean().required()
+})
+
 const validate = (schema, res, obj, next) => {
   const validationLogs = schema.validate(obj)
 
@@ -46,5 +50,8 @@ module.exports = {
   },
   patchContactValidation: (req, res, next) => {
     return validate(schemaPatchContact, res, req.body, next)
+  },
+  patchFavoriteValidation: (req, res, next) => {
+    return validate(schemaFavoriteContact, res, req, next)
   }
 }
