@@ -15,7 +15,7 @@ const {
   addContactValidation,
   patchContactValidation,
   patchFavoriteValidation
-} = require('../../middleware/validationMiddleware')
+} = require('../../middleware/contactValidationMid')
 
 router.get('/', asyncWrapper(getAllContacts))
 router.get('/:contactId', asyncWrapper(getContactByIdentification))
