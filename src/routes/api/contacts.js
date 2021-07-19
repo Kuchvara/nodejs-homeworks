@@ -1,6 +1,7 @@
 const express = require('express')
 const router = express.Router()
 const { asyncWrapper } = require('../../helpers/asyncWrapper')
+const { protection } = require('../../middleware/passwordMid')
 
 const {
   getAllContacts,
@@ -16,6 +17,8 @@ const {
   patchContactValidation,
   patchFavoriteValidation
 } = require('../../middleware/contactValidationMid')
+
+router.use(protection)
 
 router.get('/', asyncWrapper(getAllContacts))
 router.get('/:contactId', asyncWrapper(getContactByIdentification))
