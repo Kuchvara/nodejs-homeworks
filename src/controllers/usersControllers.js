@@ -1,5 +1,11 @@
-const { addUser, findUserById, findUserByEmail, updateSubscription } = require('../services/userService')
+const fs = require('fs').promises
+const path = require('path')
+
+const { addUser, findUserById, findUserByEmail, updateSubscription, updateAvatar } = require('../services/userService')
 const { login, logout } = require('../services/authService')
+const { avatarEdit } = require('../helpers/avatars')
+
+const AVATARS_DIR = path.join(process.cwd(), process.env.PUBLIC_DIR, process.env.USERS_AVATARS)
 
 const registration = async (req, res) => {
   const user = await findUserByEmail(req.body.email)
@@ -46,10 +52,28 @@ const subscription = async (req, res) => {
   }
 }
 
+const avatarController = async (req, res) => {
+  const filePath = req.file.path
+  const fileName = req.file.filename
+
+  if (req.file) {
+    await avatarEdit(filePath)
+    await fs.rename(filePath, path.join(AVATARS_DIR, fileName))
+
+    const newAvatarUrl = `${req.protocol}://${req.headers.host}/${process.env.USERS_AVATARS}/${fileName}`
+
+    const url = await updateAvatar(req.user.id, newAvatarUrl)
+    return res.status(200).json({ avatarURL: url })
+  }
+
+  res.status(400).json({ message: 'Please, provide correct file' })
+}
+
 module.exports = {
   registration,
   loginController,
   logoutController,
   currentUser,
-  subscription
+  subscription,
+  avatarController
 }
