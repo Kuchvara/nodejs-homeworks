@@ -7,15 +7,19 @@ const {
   logoutController,
   currentUser,
   subscription,
-  avatarController
+  avatarController,
+  verificationController,
+  reVerificationController
 } = require('../../controllers/usersControllers')
 
-const { userValidation, subscriptionValidation } = require('../../middleware/userValidationMid')
+const { userValidation, subscriptionValidation, verificationValidation } = require('../../middleware/userValidationMid')
 const { protection } = require('../../middleware/passwordMid')
 const { asyncWrapper } = require('../../helpers/asyncWrapper')
 const upload = require('../../helpers/uploadings')
 
 router.post('/signup', userValidation, asyncWrapper(registration))
+router.get('/verify/:verificationToken', asyncWrapper(verificationController))
+router.post('/verify/', verificationValidation, asyncWrapper(reVerificationController))
 router.post('/login', userValidation, asyncWrapper(loginController))
 router.post('/logout', protection, asyncWrapper(logoutController))
 router.get('/current', protection, asyncWrapper(currentUser))
