@@ -1,7 +1,7 @@
 const fs = require('fs').promises
 const path = require('path')
 
-const { addUser, findUserById, findUserByEmail, updateSubscription, updateAvatar } = require('../services/userService')
+const { addUser, findUserById, findUserByEmail, updateSubscription, updateAvatar, verification, reVerification } = require('../services/userService')
 const { login, logout } = require('../services/authService')
 const { avatarEdit } = require('../helpers/avatars')
 
@@ -69,11 +69,33 @@ const avatarController = async (req, res) => {
   res.status(400).json({ message: 'Please, provide correct file' })
 }
 
+const verificationController = async (req, res) => {
+  const result = await verification(req.params.verificationToken)
+
+  if (result) {
+    return res.status(200).json({ message: 'Verification successful' })
+  }
+
+  res.status(404).json({ message: 'User not found' })
+}
+
+const reVerificationController = async (req, res) => {
+  const result = await reVerification(req.body.email)
+
+  if (result) {
+    return res.status(200).json({ message: 'Verification email sent' })
+  }
+
+  res.status(400).json({ message: 'Verification has already been passed' })
+}
+
 module.exports = {
   registration,
   loginController,
   logoutController,
   currentUser,
   subscription,
-  avatarController
+  avatarController,
+  verificationController,
+  reVerificationController
 }

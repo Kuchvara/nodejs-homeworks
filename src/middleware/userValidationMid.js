@@ -20,6 +20,15 @@ const subscriptionSchema = Joi.object({
     .required(),
 })
 
+const schemaUserVerification = Joi.object({
+  email: Joi.string()
+    .email({
+      minDomainSegments: 2,
+      tlds: { allow: ['com', 'net'] }
+    })
+    .required(),
+})
+
 const validate = (schema, res, req, next) => {
   const validationBody = schema.validate(req.body)
 
@@ -35,5 +44,8 @@ module.exports = {
   },
   subscriptionValidation: (req, res, next) => {
     return validate(subscriptionSchema, res, req, next)
+  },
+  verificationValidation: (req, res, next) => {
+    return validate(schemaUserVerification, res, req, next)
   }
 }
